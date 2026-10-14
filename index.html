@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Cyber Neon Tic Tac Toe - Play 2-Player or Challenge the Unbeatable AI in this futuristic, responsive web app with sound effects and animations.">
+  <meta name="keywords" content="tic tac toe, web game, minimax ai, html5 game, neon game">
+  <meta name="author" content="Neon Arena">
+  <title>Tic Tac Toe // Neon Arena</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient Background Glows -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+  <div class="ambient-glow glow-3"></div>
+
+  <!-- Confetti Canvas for Victory -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <main class="game-wrapper">
+    <!-- Header -->
+    <header class="game-header">
+      <div class="logo-badge">
+        <span class="pulse-dot"></span>
+        <span>CYBER ARENA</span>
+      </div>
+      <h1 class="game-title">TIC <span>TAC</span> TOE</h1>
+      <p class="game-subtitle">Next-Gen Tactical Grid</p>
+    </header>
+
+    <!-- Controls & Mode Selector -->
+    <section class="controls-panel" aria-label="Game Controls">
+      <!-- Mode Toggle -->
+      <div class="segment-control" role="tablist" aria-label="Game Mode">
+        <button id="mode-pve" class="segment-btn active" role="tab" aria-selected="true" data-mode="pve">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="10" rx="2"></rect>
+            <circle cx="12" cy="5" r="2"></circle>
+            <path d="M12 7v4"></path>
+            <line x1="8" y1="16" x2="8" y2="16"></line>
+            <line x1="16" y1="16" x2="16" y2="16"></line>
+          </svg>
+          <span>vs AI</span>
+        </button>
+        <button id="mode-pvp" class="segment-btn" role="tab" aria-selected="false" data-mode="pvp">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <span>2 Players</span>
+        </button>
+      </div>
+
+      <!-- AI Difficulty (shown when vs AI is active) -->
+      <div id="ai-difficulty-wrapper" class="difficulty-selector">
+        <span class="difficulty-label">AI Logic:</span>
+        <div class="diff-buttons">
+          <button class="diff-btn" data-diff="easy" title="Casual AI">Easy</button>
+          <button class="diff-btn active" data-diff="medium" title="Smart AI">Medium</button>
+          <button class="diff-btn" data-diff="hard" title="Unbeatable Minimax AI">Master</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Player Status & Scoreboard -->
+    <section class="scoreboard" aria-label="Scoreboard">
+      <!-- Player X -->
+      <div id="player-x-card" class="player-card active-turn player-x">
+        <div class="player-avatar">
+          <svg class="symbol-icon symbol-x" viewBox="0 0 50 50">
+            <line x1="12" y1="12" x2="38" y2="38" stroke="currentColor" stroke-width="7" stroke-linecap="round"></line>
+            <line x1="38" y1="12" x2="12" y2="38" stroke="currentColor" stroke-width="7" stroke-linecap="round"></line>
+          </svg>
+        </div>
+        <div class="player-info">
+          <span class="player-name" id="name-x">Player 1</span>
+          <span class="turn-indicator">Your Turn</span>
+        </div>
+        <div class="player-score" id="score-x">0</div>
+      </div>
+
+      <!-- VS Indicator -->
+      <div class="versus-badge">
+        <span class="vs-text">VS</span>
+      </div>
+
+      <!-- Player O / AI -->
+      <div id="player-o-card" class="player-card player-o">
+        <div class="player-avatar">
+          <svg class="symbol-icon symbol-o" viewBox="0 0 50 50">
+            <circle cx="25" cy="25" r="16" stroke="currentColor" stroke-width="7" fill="none"></circle>
+          </svg>
+        </div>
+        <div class="player-info">
+          <span class="player-name" id="name-o">AI Bot</span>
+          <span class="turn-indicator">Waiting</span>
+        </div>
+        <div class="player-score" id="score-o">0</div>
+      </div>
+    </section>
+
+    <!-- Game Status Notification Bar -->
+    <div id="status-bar" class="status-bar" aria-live="polite">
+      <span id="status-text">Player X's turn to start!</span>
+    </div>
+
+    <!-- The Game Grid Area -->
+    <section class="board-container">
+      <div class="board-frame">
+        <div id="board" class="board" role="grid" aria-label="Tic Tac Toe Board">
+          <button class="cell" id="cell-0" data-index="0" role="gridcell" aria-label="Cell 1, empty"></button>
+          <button class="cell" id="cell-1" data-index="1" role="gridcell" aria-label="Cell 2, empty"></button>
+          <button class="cell" id="cell-2" data-index="2" role="gridcell" aria-label="Cell 3, empty"></button>
+          <button class="cell" id="cell-3" data-index="3" role="gridcell" aria-label="Cell 4, empty"></button>
+          <button class="cell" id="cell-4" data-index="4" role="gridcell" aria-label="Cell 5, empty"></button>
+          <button class="cell" id="cell-5" data-index="5" role="gridcell" aria-label="Cell 6, empty"></button>
+          <button class="cell" id="cell-6" data-index="6" role="gridcell" aria-label="Cell 7, empty"></button>
+          <button class="cell" id="cell-7" data-index="7" role="gridcell" aria-label="Cell 8, empty"></button>
+          <button class="cell" id="cell-8" data-index="8" role="gridcell" aria-label="Cell 9, empty"></button>
+
+          <!-- Dynamic SVG Strike Line -->
+          <svg id="strike-svg" class="strike-overlay" viewBox="0 0 300 300">
+            <line id="strike-line" x1="0" y1="0" x2="0" y2="0" />
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- Additional Stats & Meta -->
+    <div class="stats-row">
+      <div class="stat-pill">
+        <span class="stat-title">Draws:</span>
+        <span id="score-ties" class="stat-val">0</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-title">Win Streak:</span>
+        <span id="score-streak" class="stat-val">0</span>
+      </div>
+    </div>
+
+    <!-- Action Toolbar -->
+    <footer class="action-bar">
+      <button id="btn-undo" class="action-btn secondary" title="Undo Last Move">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 7v6h6"></path>
+          <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
+        </svg>
+        <span>Undo</span>
+      </button>
+
+      <button id="btn-restart" class="action-btn primary" title="Start New Round">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path>
+        </svg>
+        <span>New Round</span>
+      </button>
+
+      <button id="btn-reset-scores" class="action-btn secondary" title="Clear all recorded scores">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        </svg>
+        <span>Reset</span>
+      </button>
+
+      <button id="btn-sound" class="action-btn icon-only" title="Toggle Sound FX" aria-label="Toggle Sound">
+        <svg id="sound-icon-on" class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        </svg>
+        <svg id="sound-icon-off" class="btn-icon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <line x1="23" y1="9" x2="17" y2="15"></line>
+          <line x1="17" y1="9" x2="23" y2="15"></line>
+        </svg>
+      </button>
+    </footer>
+  </main>
+
+  <!-- Win / Draw Modal Overlay -->
+  <div id="result-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div id="modal-badge" class="modal-badge">VICTORY!</div>
+      <div class="modal-winner-avatar" id="modal-winner-avatar">
+        <!-- Injected dynamically -->
+      </div>
+      <h2 id="modal-title" class="modal-title">PLAYER X TAKES THE WIN!</h2>
+      <p id="modal-desc" class="modal-desc">Flawless tactical execution.</p>
+      
+      <div class="modal-actions">
+        <button id="modal-play-again" class="action-btn primary large">
+          <span>Play Next Round</span>
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
